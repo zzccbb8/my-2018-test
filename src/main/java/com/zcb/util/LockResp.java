@@ -1,9 +1,12 @@
 package com.zcb.util;
 
+import lombok.ToString;
+
 /**
  * @author zhuchangbin
  * @date 2018/7/25
  */
+@ToString
 public class LockResp {
 
     private boolean flag;

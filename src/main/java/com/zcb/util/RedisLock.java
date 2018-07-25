@@ -117,6 +117,7 @@ public class RedisLock {
             String expireStr = String.valueOf(System.currentTimeMillis() + expireTime);
 
             if (redisTemplate.opsForValue().setIfAbsent(lockKey, expireStr)) {
+                System.out.println(threadName + ", 获取了锁, 锁状态：" + LockResp.success(Long.parseLong(expireStr)));
                 return LockResp.success(Long.parseLong(expireStr));
             }
 
@@ -129,6 +130,9 @@ public class RedisLock {
 
             if (oldExpireTime != null && Long.parseLong(oldExpireTime) < System.currentTimeMillis()) {
                 String oldValue = redisTemplate.opsForValue().getAndSet(lockKey, expireStr);
+
+                System.out.println(threadName + " 发现之前的线程已经超时，进行getSet()操作, 原过期时间：" + oldExpireTime + ", getSet()返回的过期时间：" + oldValue + ", 新设置过期时间: " + expireStr);
+
                 if (oldValue == null || oldValue.equals(oldExpireTime)) {
                     System.out.println("之前的线程的锁已经过期，" + threadName + " 重新获取了锁。。。");
                     return LockResp.success(Long.parseLong(expireStr));
@@ -136,10 +140,10 @@ public class RedisLock {
             }
 
             // 没有获取锁, 循环等待
-            int t = random.nextInt(50);
+            int t = random.nextInt(100);
             timeout -= t;
             try {
-                Thread.sleep(1000);
+                Thread.sleep(t);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -154,13 +158,13 @@ public class RedisLock {
     public static void unlock(String lockKey, long expireTime, RedisTemplate<String, String> redisTemplate) {
         String value = redisTemplate.opsForValue().get(lockKey);
 
-        System.out.println(Thread.currentThread().getName() + ", key:" + lockKey + ", value:" + value + ", 传入值：" + expireTime);
+        System.out.println(Thread.currentThread().getName() + ", key: " + lockKey + ", value: " + value + ", 传入值：" + expireTime);
 
         if (value != null && value.equals(String.valueOf(expireTime))) {
-            System.out.println(Thread.currentThread().getName() + ", 删除了锁");
+            System.out.println(Thread.currentThread().getName() + ", 是我的锁，删除了锁");
             redisTemplate.delete(lockKey);
         } else {
-            System.out.println(Thread.currentThread().getName() + ", 锁已经没了，或者已经超时了");
+            System.out.println(Thread.currentThread().getName() + ", 不是我的锁，锁已经没了, 或者已经超时了, 直接返回");
         }
 
 //        if (value != null && value.equals(String.valueOf(expireTime))) {

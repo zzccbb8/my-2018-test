@@ -19,10 +19,10 @@ public class RedisSecondkillApplicationTests {
     @Test
     public void contextLoads() {
         String lockKey = "lock_user";
-        int expireTime = 8 * 1000;
+        int expireTime = 500;
 
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 10; i++) {
 //            new Thread(() -> {
 //                if (RedisLock.lock(lockKey, expireTime, 0, false, redisTemplate)) {
 //                    System.out.println("线程:" + Thread.currentThread().getName() + ", 获取了锁========");
@@ -38,14 +38,15 @@ public class RedisSecondkillApplicationTests {
                 //long expire = System.currentTimeMillis() + expireTime;
                 long expire = expireTime;
                 //System.out.println("当前线程：" + Thread.currentThread().getName() + "_" + finalI);
-                LockResp lockResp = RedisLock.lock(lockKey, expire, 100, true, redisTemplate);
+                LockResp lockResp = RedisLock.lock(lockKey, expire, 1000, true, redisTemplate);
                 if (lockResp.isFlag()) {
-                    System.out.println(Thread.currentThread().getName() + ", 获取了锁========");
+
+                    //System.out.println(Thread.currentThread().getName() + ", 获取了锁========");
 
                     // 模拟处理业务
                     try {
                         System.out.println(Thread.currentThread().getName() + ", 我正在处理业务******************");
-                        Thread.sleep(2 * 1000);
+                        Thread.sleep(1 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -62,7 +63,7 @@ public class RedisSecondkillApplicationTests {
         }
 
         try {
-            Thread.sleep(30 * 1000);
+            Thread.sleep(60 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
