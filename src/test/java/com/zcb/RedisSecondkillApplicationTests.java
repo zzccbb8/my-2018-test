@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Random;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RedisSecondkillApplicationTests {
@@ -19,10 +21,10 @@ public class RedisSecondkillApplicationTests {
     @Test
     public void contextLoads() {
         String lockKey = "lock_user";
-        int expireTime = 500;
+        int expireTime = 8 * 1000;
 
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
 //            new Thread(() -> {
 //                if (RedisLock.lock(lockKey, expireTime, 0, false, redisTemplate)) {
 //                    System.out.println("线程:" + Thread.currentThread().getName() + ", 获取了锁========");
@@ -46,7 +48,7 @@ public class RedisSecondkillApplicationTests {
                     // 模拟处理业务
                     try {
                         System.out.println(Thread.currentThread().getName() + ", 我正在处理业务******************");
-                        Thread.sleep(1 * 1000);
+                        Thread.sleep(2 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
